@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công nghệ - Bài 2: Một số loại hoa, cây cảnh phổ biến (Tiết 2)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700;800&family=Lexend:wght@600;700;800;900&family=Nunito:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <!-- Three.js Library for 3D Flower Effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                        display: ['Lexend', 'sans-serif'],
+                        title: ['Comfortaa', 'cursive'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        pastelPink: '#FFF0F5',
+                        pastelYellow: '#FEF3C7',
+                        pastelGreen: '#E6F4EA',
+                        pastelBlue: '#E0F2FE',
+                        brandRose: '#E11D48',
+                        brandPeach: '#FB7185',
+                        brandMai: '#F59E0B',
+                        brandLotus: '#EC4899',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #FDFBF7;
+            overflow-x: hidden;
+        }
+
+        /* Custom speech bubble tail for image 4 style */
+        .speech-bubble-left {
+            position: relative;
+        }
+        .speech-bubble-left::before {
+            content: '';
+            position: absolute;
+            left: -16px;
+            top: 24px;
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-right: 18px solid white;
+        }
+
+        /* Float Animations */
+        @keyframes floating {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(3deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .animate-float {
+            animation: floating 4s ease-in-out infinite;
+        }
+        .animate-float-slow {
+            animation: floating 6s ease-in-out infinite;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f472b6;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #e11d48;
+        }
+
+        /* Glassmorphism effects */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Image modal zoom transition */
+        .img-zoom {
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .img-zoom:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+
+    <!-- Top Floating Controller Bar -->
+    <nav class="fixed top-3 left-1/2 -translate-x-1/2 z-50 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-pink-100 flex items-center gap-2 md:gap-4 text-sm font-bold text-slate-700">
+        <button onclick="goToSlide(1)" class="px-3 py-1.5 rounded-full hover:bg-pink-100 text-pink-600 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-house"></i> Trang 1
+        </button>
+        <span class="text-slate-300">|</span>
+        <button onclick="goToSlide(2)" class="px-3 py-1.5 rounded-full hover:bg-amber-100 text-amber-600 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-users"></i> Chia Nhóm
+        </button>
+        <span class="text-slate-300">|</span>
+        <button onclick="goToSlide(3)" class="px-3 py-1.5 rounded-full hover:bg-emerald-100 text-emerald-600 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-book-open"></i> Poster Chi Tiết
+        </button>
+        <div class="hidden sm:flex items-center gap-1.5 pl-2 border-l border-slate-200">
+            <button onclick="jumpToFlower('hoa-hong')" class="px-2.5 py-1 rounded-xl text-xs bg-rose-50 text-rose-600 hover:bg-rose-100 flex flex-col items-center justify-center font-bold transition">
+                <span class="text-sm leading-none">🌹</span>
+                <span class="mt-0.5">Hồng</span>
+            </button>
+            <button onclick="jumpToFlower('hoa-dao')" class="px-2.5 py-1 rounded-xl text-xs bg-pink-50 text-pink-600 hover:bg-pink-100 flex flex-col items-center justify-center font-bold transition">
+                <span class="text-sm leading-none">🌸</span>
+                <span class="mt-0.5">Đào</span>
+            </button>
+            <button onclick="jumpToFlower('hoa-mai')" class="px-2.5 py-1 rounded-xl text-xs bg-amber-50 text-amber-600 hover:bg-amber-100 flex flex-col items-center justify-center font-bold transition">
+                <span class="text-sm leading-none">🌼</span>
+                <span class="mt-0.5">Mai</span>
+            </button>
+            <button onclick="jumpToFlower('hoa-sen')" class="px-2.5 py-1 rounded-xl text-xs bg-emerald-50 text-emerald-600 hover:bg-emerald-100 flex flex-col items-center justify-center font-bold transition">
+                <img src="https://symbols.vn/wp-content/uploads/2021/11/Bieu-tuong-hoa-sen-cach-dieu-xinh-xan.jpg" class="w-4 h-4 rounded-full object-cover" alt="Hoa sen">
+                <span class="mt-0.5">Sen</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- SECTION 1: TRANG 1 - SLIDE MỞ ĐẦU (Inspired by Image 1) -->
+    <section id="slide-1" class="relative min-h-screen w-full flex flex-col justify-between items-center px-4 py-16 bg-gradient-to-b from-pink-100 via-rose-50 to-amber-50 overflow-hidden">
+        
+        <!-- 3D Three.js Interactive Background Canvas -->
+        <canvas id="three-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+        <!-- Playful Decorative 2D Shapes (Inspired by Image 1) -->
+        <div class="absolute top-12 left-8 md:left-20 text-rose-400 opacity-60 animate-float text-4xl">
+            <i class="fa-solid fa-asterisk"></i>
+        </div>
+        <div class="absolute bottom-16 right-8 md:right-24 text-indigo-400 opacity-60 animate-float-slow text-5xl">
+            <i class="fa-solid fa-ribbon"></i>
+        </div>
+
+        <!-- Header Subject Tag -->
+        <div class="z-10 mt-8">
+            <span class="inline-block px-6 py-2 bg-white/90 text-rose-600 font-extrabold text-lg md:text-xl rounded-full shadow-md border-2 border-rose-300 transform -rotate-1 tracking-wider uppercase">
+                <i class="fa-solid fa-seedling mr-2"></i> Môn Công Nghệ
+            </span>
+        </div>
+
+        <!-- Main Title Content Box -->
+        <div class="z-10 max-w-4xl text-center my-auto px-6 py-10 bg-white/85 backdrop-blur-md rounded-3xl shadow-2xl border-4 border-dashed border-rose-300 relative transform transition duration-500 hover:scale-[1.01]">
+            
+            <!-- Cute Cartoon Flower Characters on Corners -->
+            <div class="absolute -top-10 -right-8 w-24 h-24 bg-rose-500 rounded-full flex items-center justify-center text-white shadow-lg animate-bounce">
+                <div class="text-center">
+                    <span class="text-3xl">🌺</span>
+                    <p class="text-[10px] font-bold">3D Flowers</p>
+                </div>
+            </div>
+            
+            <div class="absolute -bottom-10 -left-8 w-24 h-24 bg-indigo-400 rounded-full flex items-center justify-center text-white shadow-lg animate-float">
+                <div class="text-center">
+                    <span class="text-3xl">🌸</span>
+                    <p class="text-[10px] font-bold">Tiết 2</p>
+                </div>
+            </div>
+
+            <p class="text-lg md:text-2xl font-bold text-rose-500 mb-4 tracking-wide font-display">
+                Hãy sẵn sàng để khám phá thế giới tự nhiên!
+            </p>
+            
+            <h1 class="text-3xl md:text-5xl font-black text-slate-800 leading-[1.65] md:leading-[1.75] mb-8 font-title tracking-wide drop-shadow-sm py-2">
+                BÀI 2. MỘT SỐ LOẠI HOA,<br class="hidden sm:inline"/> CÂY CẢNH PHỔ BIẾN
+            </h1>
+
+            <div class="inline-block px-6 py-2.5 bg-amber-300 text-amber-950 rounded-2xl font-black text-xl md:text-2xl shadow-inner tracking-wider">
+                (TIẾT 2)
+            </div>
+
+            <p class="mt-6 text-slate-600 font-semibold text-sm md:text-base">
+                Chủ đề: Hoa Hồng • Hoa Đào • Hoa Mai • Hoa Sen
+            </p>
+        </div>
+
+        <!-- Video YouTube: Bông hồng kiêu căng -->
+        <div class="z-10 max-w-3xl w-full my-6 bg-white/90 backdrop-blur-md rounded-3xl p-4 md:p-6 shadow-xl border-2 border-rose-200">
+            <div class="flex items-center justify-center gap-2 mb-3">
+                <i class="fa-brands fa-youtube text-red-600 text-2xl md:text-3xl"></i>
+                <h3 class="text-lg md:text-2xl font-black text-rose-700 font-display text-center">
+                    Bông hồng kiêu căng
+                </h3>
+            </div>
+            <div class="relative w-full overflow-hidden rounded-2xl shadow-md border border-rose-100" style="padding-top: 56.25%;">
+                <iframe class="absolute top-0 left-0 w-full h-full border-0" 
+                        src="https://www.youtube.com/embed/re14cjAW9q8?start=62" 
+                        title="Bông hồng kiêu căng" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+
+        <!-- 3D Flower Controls & Next Button -->
+        <div class="z-10 flex flex-col items-center gap-4 mb-4">
+            <div class="flex items-center gap-3 bg-white/70 px-4 py-1.5 rounded-full text-xs text-slate-600 border border-slate-200 shadow-sm">
+                <span><i class="fa-solid fa-cube text-rose-500"></i> Xoay chuột để tương tác hoa 3D</span>
+                <button id="toggle-3d-speed" onclick="toggle3DSpeed()" class="text-rose-600 underline font-bold ml-2">Tăng tốc độ</button>
+            </div>
+
+            <button onclick="goToSlide(2)" class="px-8 py-4 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-extrabold text-xl rounded-full shadow-xl hover:shadow-rose-300 transition-all transform hover:-translate-y-1 flex items-center gap-3 group">
+                <span>Khám Phá Bài Học</span>
+                <i class="fa-solid fa-circle-arrow-right group-hover:translate-x-2 transition-transform"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- SECTION 2: TRANG 2 - CHIA NHÓM (Inspired by Image 2) -->
+    <section id="slide-2" class="min-h-screen w-full flex flex-col justify-center items-center px-4 py-20 bg-amber-200/90 relative">
+        
+        <!-- Background decorative patterns -->
+        <div class="absolute inset-0 bg-[radial-gradient(#d97706_1px,transparent_1px)] [background-size:24px_24px] opacity-10"></div>
+
+        <div class="max-w-5xl w-full mx-auto text-center z-10">
+            <!-- Header Title -->
+            <h2 class="text-4xl md:text-6xl font-black text-slate-900 mb-3 font-display tracking-tight">
+                Chia nhóm
+            </h2>
+            <p class="text-xl md:text-2xl font-bold text-slate-700 mb-10">
+                Các nhóm thảo luận tìm hiểu đặc điểm các loại hoa
+            </p>
+
+            <!-- 4 Group Cards Frame Grid (Matching Image 2 Style) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 px-2">
+                
+                <!-- Group 1: Rose -->
+                <div onclick="jumpToFlower('hoa-hong')" class="cursor-pointer bg-white/95 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-4 border-transparent hover:border-rose-400 hover:-translate-y-2 group flex flex-col items-center justify-center min-h-[200px]">
+                    <div class="w-16 h-16 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">
+                        🌹
+                    </div>
+                    <h3 class="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2 font-display">
+                        Nhóm 1: Hoa hồng
+                    </h3>
+                    <p class="text-slate-500 font-semibold text-sm">Nghiên cứu về hoa hồng và công dụng</p>
+                    <span class="mt-4 inline-flex items-center text-rose-600 font-bold text-sm group-hover:underline">
+                        Xem chi tiết nhóm <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </span>
+                </div>
+
+                <!-- Group 2: Peach Blossom -->
+                <div onclick="jumpToFlower('hoa-dao')" class="cursor-pointer bg-white/95 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-4 border-transparent hover:border-pink-400 hover:-translate-y-2 group flex flex-col items-center justify-center min-h-[200px]">
+                    <div class="w-16 h-16 rounded-2xl bg-pink-100 text-pink-600 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">
+                        🌸
+                    </div>
+                    <h3 class="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2 font-display">
+                        Nhóm 2: Hoa đào
+                    </h3>
+                    <p class="text-slate-500 font-semibold text-sm">Nghiên cứu về sắc hồng hoa đào miền Bắc</p>
+                    <span class="mt-4 inline-flex items-center text-pink-600 font-bold text-sm group-hover:underline">
+                        Xem chi tiết nhóm <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </span>
+                </div>
+
+                <!-- Group 3: Mai Blossom -->
+                <div onclick="jumpToFlower('hoa-mai')" class="cursor-pointer bg-white/95 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-4 border-transparent hover:border-amber-400 hover:-translate-y-2 group flex flex-col items-center justify-center min-h-[200px]">
+                    <div class="w-16 h-16 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">
+                        🌼
+                    </div>
+                    <h3 class="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2 font-display">
+                        Nhóm 3: Hoa mai
+                    </h3>
+                    <p class="text-slate-500 font-semibold text-sm">Nghiên cứu vẻ đẹp rực rỡ sắc vàng hoa mai</p>
+                    <span class="mt-4 inline-flex items-center text-amber-600 font-bold text-sm group-hover:underline">
+                        Xem chi tiết nhóm <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </span>
+                </div>
+
+                <!-- Group 4: Lotus -->
+                <div onclick="jumpToFlower('hoa-sen')" class="cursor-pointer bg-white/95 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-4 border-transparent hover:border-emerald-400 hover:-translate-y-2 group flex flex-col items-center justify-center min-h-[200px]">
+                    <div class="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform overflow-hidden p-1 shadow-sm">
+                        <img src="https://symbols.vn/wp-content/uploads/2021/11/Bieu-tuong-hoa-sen-cach-dieu-xinh-xan.jpg" class="w-full h-full object-cover rounded-xl" alt="Icon Hoa Sen">
+                    </div>
+                    <h3 class="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2 font-display">
+                        Nhóm 4: Hoa sen
+                    </h3>
+                    <p class="text-slate-500 font-semibold text-sm">Nghiên cứu loài hoa quốc hoa thanh cao</p>
+                    <span class="mt-4 inline-flex items-center text-emerald-600 font-bold text-sm group-hover:underline">
+                        Xem chi tiết nhóm <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="mt-12">
+                <button onclick="goToSlide(3)" class="px-8 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-lg rounded-full shadow-lg transition transform hover:scale-105 inline-flex items-center gap-2">
+                    <i class="fa-solid fa-scroll"></i> Xem Toàn Bộ Poster Chi Tiết
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: TRANG 3 - POSTER CHI TIẾT KÉO DÀI (Scrollable Detailed Poster Page) -->
+    <section id="slide-3" class="w-full bg-slate-50 py-16 px-4 md:px-8">
+        
+        <div class="max-w-6xl mx-auto text-center mb-12 pt-8">
+            <span class="px-4 py-1.5 bg-rose-100 text-rose-700 font-extrabold rounded-full text-sm">
+                BÁO CÁO KẾT QUẢ THẢO LUẬN
+            </span>
+            <h2 class="text-3xl md:text-5xl font-black text-slate-800 mt-3 font-display">
+                Triển Lãm Đặc Điểm Các Loài Hoa
+            </h2>
+        </div>
+
+        <div class="max-w-6xl mx-auto space-y-24">
+
+            <!-- ==================== 1. HOA HỒNG ==================== -->
+            <div id="hoa-hong" class="scroll-mt-24 bg-gradient-to-br from-rose-50 to-pink-50 rounded-3xl p-6 md:p-10 shadow-xl border border-rose-200">
+                <div class="flex items-center gap-3 mb-8 pb-4 border-b-2 border-rose-200">
+                    <span class="text-4xl">🌹</span>
+                    <div>
+                        <h3 class="text-3xl md:text-4xl font-black text-rose-700 font-display">HOA HỒNG</h3>
+                        <p class="text-rose-500 font-bold text-sm">Chủ đề thảo luận Nhóm 1</p>
+                    </div>
+                </div>
+
+                <!-- Split Layout: Image collage left, Speech bubble cards right -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    
+                    <!-- Left Column: Cut/Collage Photo Gallery (6 cols) -->
+                    <div class="lg:col-span-6 grid grid-cols-2 gap-4">
+                        <!-- Ảnh 1: Hoa hồng đỏ thắm -->
+                        <div class="relative group overflow-hidden rounded-2xl shadow-md border-2 border-white">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1-m9E9U4BT8hwtII3nUNiCGplw_iGVo85l52mE7M36A&s=10" onerror="this.src='https://placehold.co/600x400/rose/white?text=Hoa+Hong+1'" alt="Hoa hồng thắm" class="w-full h-52 object-cover img-zoom">
+                            <div class="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">Hoa hồng thắm</div>
+                        </div>
+
+                        <!-- Ảnh 2: Cánh hoa hồng -->
+                        <div class="relative group overflow-hidden rounded-2xl shadow-md border-2 border-white">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8RdafUAcA0qarZooDyP96D00HFqdfQSpmcKK9QII_Bw&s=10" onerror="this.src='https://placehold.co/600x400/rose/white?text=Hoa+Hong+2'" alt="Hoa hồng khoe sắc" class="w-full h-52 object-cover img-zoom">
+                            <div class="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">Cánh hoa hồng khoe sắc</div>
+                        </div>
+
+                        <!-- Ảnh 3: Khóm hoa hồng rực rỡ -->
+                        <div class="relative group overflow-hidden rounded-2xl shadow-md border-2 border-white col-span-2">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQjWlErjpg77EQXVogMPSI1giltxMSwUxJWPDJQ1jDrQ&s=10" onerror="this.src='https://placehold.co/800x400/pink/white?text=Hoa+Hong+3'" alt="Khóm hoa hồng" class="w-full h-44 object-cover img-zoom">
+                            <div class="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">Khóm hoa hồng rực rỡ</div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Speech Bubbles Information Cards (6 cols) -->
+                    <div class="lg:col-span-6 space-y-4">
+                        <div class="bg-rose-600 text-white px-5 py-3 rounded-2xl font-bold text-lg inline-block shadow">
+                            <i class="fa-solid fa-list-check mr-2"></i> ĐẶC ĐIỂM NỔI BẬT HOA HỒNG
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-4 shadow-md border-l-8 border-rose-500 hover:shadow-lg transition">
+                            <p class="font-extrabold text-rose-800 text-lg">🌿 Lá & Mép Lá:</p>
+                            <p class="text-slate-700 font-semibold">Lá màu xanh, mép lá có hình răng cưa đặc trưng.</p>
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-4 shadow-md border-l-8 border-rose-500 hover:shadow-lg transition">
+                            <p class="font-extrabold text-rose-800 text-lg">🎨 Màu Sắc & Kiểu Mọc:</p>
+                            <p class="text-slate-700 font-semibold">Hoa nhiều màu (đỏ, hồng, bạch, vàng...), mọc đơn lẻ hoặc thành chùm.</p>
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-4 shadow-md border-l-8 border-rose-500 hover:shadow-lg transition">
+                            <p class="font-extrabold text-rose-800 text-lg">🌵 Thân Cây & Hương Thơm:</p>
+                            <p class="text-slate-700 font-semibold">Thân cây có gai hoặc không có gai. Hoa nở quanh năm và tỏa hương thơm dễ chịu.</p>
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-4 shadow-md border-l-8 border-rose-500 hover:shadow-lg transition">
+                            <p class="font-extrabold text-rose-800 text-lg">💖 Ý Nghĩa & Ứng Dụng:</p>
+                            <p class="text-slate-700 font-semibold">Là biểu tượng nổi tiếng của tình yêu; dùng làm nguyên liệu chế tạo nước hoa, trà hoa hồng dưỡng nhan...</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ==================== 2. HOA ĐÀO ==================== -->
+            <div id="hoa-dao" class="scroll-mt-24 bg-gradient-to-br from-pink-50 to-rose-100 rounded-3xl p-6 md:p-10 shadow-xl border border-pink-200">
+                <div class="flex items-center gap-3 mb-8 pb-4 border-b-2 border-pink-200">
+                    <span class="text-4xl">🌸</span>
+                    <div>
+                        <h3 class="text-3xl md:text-4xl font-black text-pink-700 font-display">HOA ĐÀO</h3>
+                        <p class="text-pink-500 font-bold text-sm">Chủ đề thảo luận Nhóm 2</p>
+                    </div>
+                </div>
+
+                <!-- Split Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    
+                    <!-- Left Column: Photo Gallery -->
+                    <div class="lg:col-span-6 grid grid-cols-3 gap-3">
+                        <div class="relative group overflow-hidden rounded-2xl shadow-md border-2 border-white col-span-2">
+                            <img src="https://hoaviet247.com/wp-content/uploads/2025/05/tim-hieu-y-nghia-hoa-dao.webp" onerror="this.src='https://placehold.co/600x400/pink/white?text=Hoa+Dao+1'" alt="Cành hoa đào hồng" class="w-full h-60 object-cover img-zoom">
+                            <div class="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">Cành hoa đào nở rộ xuân về</div>
+                        </div>
+                        <div class="relative group overflow-hidden rounded-2xl shadow-md border-2 border-white">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9fVTJJCd8RmZS2sHULEgdr7g-DoJasWKVSzwwjTVquqxF3N0P_9xwk5Mb&s=10" onerror="this.src='https://placehold.co/500x400/pink/white?text=Hoa+Dao+2'" alt="Hoa đào phai" class="w-full h-60 object-cover img-zoom">
+                            <div class="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">Bông hoa đào phai</div>
+                        </div>
+                        <div class="relative group overflow-hidden rounded-2xl shadow-md border-2 border-white col-span-3">
+                            <img src="https://congdankhuyenhoc.qltns.mediacdn.vn/449484899827462144/2023/1/13/base64-1673582687790654200577.png" onerror="this.src='https://placehold.co/800x400/pink/white?text=Hoa+Dao+3'" alt="Cây hoa đào khoe sắc" class="w-full h-44 object-cover img-zoom">
+                            <div class="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">Cận cảnh cánh hoa đào hồng thắm</div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Speech Bubbles Info -->
+                    <div class="lg:col-span-6 space-y-4">
+                        <div class="bg-pink-600 text-white px-5 py-3 rounded-2xl font-bold text-lg inline-block shadow">
+                            <i class="fa-solid fa-seedling mr-2"></i> ĐẶC ĐIỂM CÂY HOA ĐÀO
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-4 shadow-md border-l-8 border-pink-500">
+                            <p class="font-extrabold text-pink-800 text-lg">🌳 Thân & Rễ:</p>
+                            <p class="text-slate-700 font-semibold">Thân gỗ, hệ rễ cọc bám sâu chắc chắn.</p>
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-4 shadow-md border-l-8 border-pink-500">
+                            <p class="font-extrabold text-pink-800 text-lg">🍃 Đặc Điểm Lá Cây:</p>
+                            <p class="text-slate-700 font-semibold">Lá cây có hình elip. Thường được tuốt lá (hoặc tự rụng) vào mùa đông để chuẩn bị cho mùa xuân hoa nở dồn dập.</p>
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-4 shadow-md border-l-8 border-pink-500">
+                            <p class="font-extrabold text-pink-800 text-lg">🌸 Hoa, Quả & Phân Bố:</p>
+                            <p class="text-slate-700 font-semibold">Hoa mọc đơn hoặc cụm nhỏ, màu hồng đào, hồng phấn, trắng... Cây cho quả đào. Thường được trồng phổ biến ở miền Bắc Việt Nam.</p>
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-4 shadow-md border-l-8 border-pink-500">
+                            <p class="font-extrabold text-pink-800 text-lg">🍵 Ứng Dụng Độc Đáo:</p>
+                            <p class="text-slate-700 font-semibold">Nhựa cây hoa đào được thu hái làm chè dưỡng nhan rất bổ dưỡng và thanh mát.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ==================== 3. HOA MAI ==================== -->
+            <div id="hoa-mai" class="scroll-mt-24 bg-gradient-to-br from-amber-50 to-yellow-100 rounded-3xl p-6 md:p-10 shadow-xl border border-amber-200">
+                <div class="flex items-center gap-3 mb-8 pb-4 border-b-2 border-amber-200">
+                    <span class="text-4xl">🌼</span>
+                    <div>
+                        <h3 class="text-3xl md:text-4xl font-black text-amber-700 font-display">HOA MAI</h3>
+                        <p class="text-amber-600 font-bold text-sm">Chủ đề thảo luận Nhóm 3</p>
+                    </div>
+                </div>
+
+                <!-- Split Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    
+                    <!-- Left Column: Photo Gallery -->
+                    <div class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="relative group overflow-hidden rounded-2xl shadow-md border-2 border-white">
+                            <img src="https://cms.lichngaytot.com/medias/standard/2023/1/16/CAY-HOA-MAI-Diem-tot-ve-su-sung-tuc,-giau-sang-cho-moi-gia-dinh-dau-nam-moi.jpg" onerror="this.src='https://placehold.co/600x400/amber/white?text=Hoa+Mai+Vang'" alt="Cây hoa mai vàng" class="w-full h-64 object-cover img-zoom">
+                            <div class="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">Cây hoa mai vàng ngày Tết</div>
+                        </div>
+                        <div class="relative group overflow-hidden rounded-2xl shadow-md border-2 border-white">
+                            <img src="https://thietkecanhquan.com.vn/wp-content/uploads/2022/06/Tim-Hieu-Ve-Cay-Hoa-Mai-Co-Bao-Nhieu-Loai-S-Contruction-2.jpg" onerror="this.src='https://placehold.co/600x400/orange/white?text=Cành+Mai'" alt="Cành hoa mai nở rộ" class="w-full h-64 object-cover img-zoom">
+                            <div class="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">Cành hoa mai nở rộ rực rỡ</div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Speech Bubbles Info -->
+                    <div class="lg:col-span-6 space-y-4">
+                        <div class="bg-amber-500 text-white px-5 py-3 rounded-2xl font-bold text-lg inline-block shadow">
+                            <i class="fa-solid fa-sun mr-2"></i> ĐẶC ĐIỂM CÂY HOA MAI
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-4 shadow-md border-l-8 border-amber-400">
+                            <p class="font-extrabold text-amber-800 text-lg">🪵 Thân Cây & Lá:</p>
+                            <p class="text-slate-700 font-semibold">Thân cây dạng thân gỗ, lá đơn mọc so le nhau trên cành.</p>
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-4 shadow-md border-l-8 border-amber-400">
+                            <p class="font-extrabold text-amber-800 text-lg">🌼 Hoa & Kiểu Mọc:</p>
+                            <p class="text-slate-700 font-semibold">Hoa mọc đơn hoặc thành từng chùm. Màu sắc hoa phổ biến là màu vàng rực rỡ hoặc màu trắng tinh khôi.</p>
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-4 shadow-md border-l-8 border-amber-400">
+                            <p class="font-extrabold text-amber-800 text-lg">⚫ Quả Cây Mai:</p>
+                            <p class="text-slate-700 font-semibold">Khi hoa tàn sẽ kết quả, quả chín có màu đen bóng đặc trưng.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ==================== 4. HOA SEN ==================== -->
+            <div id="hoa-sen" class="scroll-mt-24 bg-gradient-to-br from-emerald-50 via-teal-50 to-pink-50 rounded-3xl p-6 md:p-10 shadow-xl border border-emerald-200">
+                <div class="flex items-center gap-3 mb-8 pb-4 border-b-2 border-emerald-200">
+                    <img src="https://symbols.vn/wp-content/uploads/2021/11/Bieu-tuong-hoa-sen-cach-dieu-xinh-xan.jpg" class="w-12 h-12 rounded-2xl object-cover shadow border-2 border-emerald-300" alt="Icon Hoa Sen">
+                    <div>
+                        <h3 class="text-3xl md:text-4xl font-black text-emerald-800 font-display">HOA SEN</h3>
+                        <p class="text-emerald-600 font-bold text-sm">Chủ đề thảo luận Nhóm 4</p>
+                    </div>
+                </div>
+
+                <!-- Split Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-10">
+                    
+                    <!-- Left Column: Photo Gallery -->
+                    <div class="lg:col-span-6 grid grid-cols-2 gap-4">
+                        <div class="relative group overflow-hidden rounded-2xl shadow-md border-2 border-white">
+                            <img src="https://caycanhdanang.com.vn/wp-content/uploads/2024/10/hoa-sen-dep.png" onerror="this.src='https://placehold.co/600x400/emerald/white?text=Hoa+Sen+Dep'" alt="Hoa sen đẹp" class="w-full h-52 object-cover img-zoom">
+                            <div class="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">Bông hoa sen hồng khoe sắc</div>
+                        </div>
+                        <div class="relative group overflow-hidden rounded-2xl shadow-md border-2 border-white">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGzJH15ZTVStqW20pCJv9026E8UDtBHudw2yxt-3-_fA&s=10" onerror="this.src='https://placehold.co/600x400/teal/white?text=Hoa+Sen'" alt="Hoa sen nở" class="w-full h-52 object-cover img-zoom">
+                            <div class="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">Hoa sen nở rực rỡ</div>
+                        </div>
+                        <div class="relative group overflow-hidden rounded-2xl shadow-md border-2 border-white col-span-2">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSP1I7zatzyeHxsa8n59Xjo45M5mUHPj4zVpjxgJQnPHA&s=10" onerror="this.src='https://placehold.co/800x400/slate/white?text=Dam+Sen'" alt="Đầm hoa sen" class="w-full h-44 object-cover img-zoom">
+                            <div class="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">Cánh hoa sen và lá sen</div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Speech Bubbles Info -->
+                    <div class="lg:col-span-6 space-y-4">
+                        <div class="bg-emerald-600 text-white px-5 py-3 rounded-2xl font-bold text-lg inline-block shadow">
+                            <i class="fa-solid fa-water mr-2"></i> ĐẶC ĐIỂM LOÀI HOA SEN
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-4 shadow-md border-l-8 border-emerald-500">
+                            <p class="font-extrabold text-emerald-800 text-lg">🌱 Thân Rễ & Ngó Sen:</p>
+                            <p class="text-slate-700 font-semibold">Thân rễ (củ sen) mọc ngầm dưới lớp bùn sâu. Ngó sen có hình tròn dài.</p>
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-4 shadow-md border-l-8 border-emerald-500">
+                            <p class="font-extrabold text-emerald-800 text-lg">🍃 Lá & Cánh Hoa Sen:</p>
+                            <p class="text-slate-700 font-semibold">Lá sen mọc vươn cao khỏi mặt nước, phiến lá gần tròn. Hoa sen có màu hồng, màu trắng, nhị hoa vàng và hạt sen.</p>
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-4 shadow-md border-l-8 border-emerald-500">
+                            <p class="font-extrabold text-emerald-800 text-lg">🍲 Giá Trị Sử Dụng Đa Dạng:</p>
+                            <p class="text-slate-700 font-semibold">Tất cả các bộ phận của cây sen đều được tận dụng làm thực phẩm (chè, gỏi), bài thuốc đông y quý, hoặc trang trí nghệ thuật.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Folk Poem Quote Box -->
+                <div class="bg-gradient-to-r from-amber-100 via-rose-100 to-emerald-100 rounded-2xl p-6 md:p-8 text-center border-2 border-dashed border-emerald-300 shadow-inner mb-8">
+                    <span class="text-xs font-black uppercase tracking-widest text-slate-500 block mb-2">Ca Dao Việt Nam</span>
+                    <blockquote class="font-serif italic text-xl md:text-2xl text-slate-800 font-bold leading-relaxed">
+                        “Trong đầm gì đẹp bằng sen<br/>
+                        Lá xanh, bông trắng lại chen nhị vàng.”
+                    </blockquote>
+                </div>
+
+                <!-- Video Embedding Section for Lotus Song -->
+                <div class="bg-white rounded-2xl p-6 shadow-md border border-slate-200">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fa-brands fa-youtube text-red-600 text-3xl"></i>
+                        <h4 class="font-black text-slate-800 text-xl font-display">Bài Hát Về Hoa Sen (Trình Chiếu Âm Nhạc)</h4>
+                    </div>
+                    <div class="relative w-full overflow-hidden rounded-xl shadow-lg" style="padding-top: 56.25%;">
+                        <iframe class="absolute top-0 left-0 w-full h-full border-0" 
+                                src="https://www.youtube.com/embed/1tACiKL43qk?autoplay=0" 
+                                title="Bài hát Hoa Sen" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ==================== INTERACTIVE QUIZ SECTION ==================== -->
+            <div class="bg-indigo-900 rounded-3xl p-6 md:p-10 text-white shadow-2xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl">
+                    <i class="fa-solid fa-gamepad"></i>
+                </div>
+
+                <div class="text-center mb-8">
+                    <span class="px-3 py-1 bg-amber-400 text-amber-950 rounded-full text-xs font-black uppercase">Góc Thử Thách</span>
+                    <h3 class="text-3xl font-extrabold font-display mt-2">Trò Chơi Củng Cố Kiến Thức</h3>
+                    <p class="text-indigo-200 text-sm">Trả lời đúng + 10 điểm!</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                    
+                    <!-- Game Rules Box (Green Tree Board concept matching Image 4) -->
+                    <div class="md:col-span-5 bg-emerald-600 rounded-2xl p-6 text-center border-4 border-emerald-400 shadow-lg">
+                        <div class="text-5xl mb-3">🌳</div>
+                        <h4 class="text-xl font-black mb-3">Củng Cố Kiến Thức</h4>
+                        <ul class="text-sm space-y-2 text-emerald-100 font-semibold text-left list-disc list-inside">
+                            <comment-tag id="1">
+                            <li>Trả lời đúng + 10 điểm!</li>
+                           </comment-tag id="1" text="Thay thế phần quy tắc cũ thành: <li>Trả lời đúng được + điểm</li>" type="suggestion">
+                        </ul>
+                        <div class="mt-6 inline-block bg-emerald-900 px-4 py-2 rounded-xl text-xs font-bold">
+                            Điểm hiện tại: <span id="quiz-score" class="text-amber-300 text-base">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Questions (Image 4 Speech Bubbles Style) -->
+                    <div class="md:col-span-7 space-y-4">
+                        
+                        <!-- Question 1 -->
+                        <div class="bg-white text-slate-800 rounded-2xl p-4 shadow-md">
+                            <p class="font-bold text-slate-800 mb-2">1. Loại hoa nào có thân rễ mọc ngầm dưới bùn?</p>
+                            <div class="grid grid-cols-2 gap-2 text-sm font-semibold">
+                                <button onclick="checkQuiz(this, false)" class="p-2 rounded-xl bg-slate-100 hover:bg-rose-100 hover:text-rose-600 text-left">A. Hoa hồng</button>
+                                <button onclick="checkQuiz(this, true)" class="p-2 rounded-xl bg-slate-100 hover:bg-emerald-100 hover:text-emerald-600 text-left">B. Hoa sen</button>
+                            </div>
+                        </div>
+
+                        <!-- Question 2 -->
+                        <div class="bg-white text-slate-800 rounded-2xl p-4 shadow-md">
+                            <p class="font-bold text-slate-800 mb-2">2. Nhựa của cây hoa nào được dùng làm chè dưỡng nhan?</p>
+                            <div class="grid grid-cols-2 gap-2 text-sm font-semibold">
+                                <button onclick="checkQuiz(this, true)" class="p-2 rounded-xl bg-slate-100 hover:bg-pink-100 hover:text-pink-600 text-left">A. Hoa đào</button>
+                                <button onclick="checkQuiz(this, false)" class="p-2 rounded-xl bg-slate-100 hover:bg-amber-100 hover:text-amber-600 text-left">B. Hoa mai</button>
+                            </div>
+                        </div>
+
+                        <!-- Question 3 -->
+                        <div class="bg-white text-slate-800 rounded-2xl p-4 shadow-md">
+                            <p class="font-bold text-slate-800 mb-2">3. Hoa mai có quả màu gì khi chín?</p>
+                            <div class="grid grid-cols-2 gap-2 text-sm font-semibold">
+                                <button onclick="checkQuiz(this, false)" class="p-2 rounded-xl bg-slate-100 hover:bg-rose-100 hover:text-rose-600 text-left">A. Màu đỏ</button>
+                                <button onclick="checkQuiz(this, true)" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-800 hover:text-white text-left">B. Màu đen</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center text-sm border-t border-slate-800">
+        <p class="font-semibold">Bài giảng điện tử Công nghệ • Bài 2: Một số loại hoa, cây cảnh phổ biến (Tiết 2)</p>
+        <p class="text-xs text-slate-600 mt-1">Thiết kế bài giảng tương tác đa phương tiện 3D</p>
+    </footer>
+
+    <script>
+        // ==================== SLIDE NAVIGATION LOGIC ====================
+        function goToSlide(slideNum) {
+            const el = document.getElementById(`slide-${slideNum}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function jumpToFlower(flowerId) {
+            goToSlide(3);
+            setTimeout(() => {
+                const target = document.getElementById(flowerId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 300);
+        }
+
+        // ==================== QUIZ GAME INTERACTION ====================
+        let score = 0;
+        function checkQuiz(btn, isCorrect) {
+            const parent = btn.parentElement;
+            // Prevent re-answering
+            const buttons = parent.querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+
+            if (isCorrect) {
+                btn.classList.remove('bg-slate-100');
+                btn.classList.add('bg-emerald-500', 'text-white');
+                btn.innerHTML += ' <i class="fa-solid fa-check ml-1"></i> Đúng (+10 điểm)';
+                score += 10;
+            } else {
+                btn.classList.remove('bg-slate-100');
+                btn.classList.add('bg-rose-500', 'text-white');
+                btn.innerHTML += ' <i class="fa-solid fa-xmark ml-1"></i> Sai';
+            }
+            document.getElementById('quiz-score').innerText = score;
+        }
+
+        // ==================== THREE.JS 3D FLOWER ANIMATION ====================
+        let scene, camera, renderer, flowerGroup;
+        let speedMultiplier = 1.0;
+
+        function toggle3DSpeed() {
+            speedMultiplier = speedMultiplier === 1.0 ? 2.5 : 1.0;
+            const btn = document.getElementById('toggle-3d-speed');
+            btn.innerText = speedMultiplier > 1.0 ? "Giảm tốc độ" : "Tăng tốc độ";
+        }
+
+        function init3DFlowers() {
+            const canvas = document.getElementById('three-canvas');
+            const container = document.getElementById('slide-1');
+
+            // Scene setup
+            scene = new THREE.Scene();
+
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 15;
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffb6c1, 1.2);
+            dirLight.position.set(5, 10, 7);
+            scene.add(dirLight);
+
+            // Create Group for 3D Floating Flower Objects
+            flowerGroup = new THREE.Group();
+            scene.add(flowerGroup);
+
+            // Helper function to build 3D Procedural Flower Petals
+            function createFlowerMesh(colorHex, petalCount, scale) {
+                const flower = new THREE.Group();
+                
+                // Center core
+                const coreGeo = new THREE.SphereGeometry(0.4, 16, 16);
+                const coreMat = new THREE.MeshStandardMaterial({ color: 0xFBBF24, roughness: 0.3 });
+                const core = new THREE.Mesh(coreGeo, coreMat);
+                flower.add(core);
+
+                // Petals
+                const petalMat = new THREE.MeshStandardMaterial({ 
+                    color: colorHex, 
+                    roughness: 0.4,
+                    side: THREE.DoubleSide
+                });
+
+                for (let i = 0; i < petalCount; i++) {
+                    const angle = (i / petalCount) * Math.PI * 2;
+                    const petalShape = new THREE.ConeGeometry(0.5, 1.8, 12);
+                    petalShape.rotateX(Math.PI / 2);
+                    const petal = new THREE.Mesh(petalShape, petalMat);
+                    
+                    petal.position.x = Math.cos(angle) * 0.9;
+                    petal.position.y = Math.sin(angle) * 0.9;
+                    petal.rotation.z = angle + Math.PI / 2;
+                    flower.add(petal);
+                }
+
+                flower.scale.set(scale, scale, scale);
+                return flower;
+            }
+
+            // Create 4 Distinct Flower Types (Rose: Red, Peach: Pink, Mai: Yellow, Lotus: Soft Pink)
+            const flowersData = [
+                { color: 0xE11D48, petals: 12, count: 5 }, // Rose (Đỏ)
+                { color: 0xFB7185, petals: 8, count: 6 },  // Peach (Hồng)
+                { color: 0xF59E0B, petals: 5, count: 6 },  // Mai (Vàng)
+                { color: 0xEC4899, petals: 10, count: 4 }  // Lotus (Sen)
+            ];
+
+            flowersData.forEach(type => {
+                for (let i = 0; i < type.count; i++) {
+                    const mesh = createFlowerMesh(type.color, type.petals, 0.6 + Math.random() * 0.5);
+                    mesh.position.set(
+                        (Math.random() - 0.5) * 26,
+                        (Math.random() - 0.5) * 16,
+                        (Math.random() - 0.5) * 10
+                    );
+                    mesh.userData = {
+                        rotSpeedX: (Math.random() - 0.5) * 0.02,
+                        rotSpeedY: (Math.random() - 0.5) * 0.02,
+                        floatSpeedY: 0.005 + Math.random() * 0.01,
+                        initialY: mesh.position.y
+                    };
+                    flowerGroup.add(mesh);
+                }
+            });
+
+            // Interactive mouse rotation effect
+            let mouseX = 0, mouseY = 0;
+            window.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX / window.innerWidth - 0.5) * 0.5;
+                mouseY = (e.clientY / window.innerHeight - 0.5) * 0.5;
+            });
+
+            // Resize Handler
+            window.addEventListener('resize', () => {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+
+            // Animation Loop
+            function animate3D() {
+                requestAnimationFrame(animate3D);
+
+                flowerGroup.children.forEach(flower => {
+                    flower.rotation.x += flower.userData.rotSpeedX * speedMultiplier;
+                    flower.rotation.y += flower.userData.rotSpeedY * speedMultiplier;
+                    
+                    // Floating upward movement
+                    flower.position.y += flower.userData.floatSpeedY * speedMultiplier;
+                    if (flower.position.y > 10) {
+                        flower.position.y = -10;
+                    }
+                });
+
+                // Gentle camera sway follow mouse
+                camera.position.x += (mouseX * 5 - camera.position.x) * 0.05;
+                camera.position.y += (-mouseY * 5 - camera.position.y) * 0.05;
+                camera.lookAt(scene.position);
+
+                renderer.render(scene, camera);
+            }
+
+            animate3D();
+        }
+
+        // Start animation after window load
+        window.onload = function() {
+            init3DFlowers();
+        };
+    </script>
+</body>
+</html>
